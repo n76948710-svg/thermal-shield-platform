@@ -1,135 +1,117 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 
-st.set_page_config(page_title="منصة الدرع الحراري", page_icon="⛺", layout="centered")
-
-st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(135deg, #0e1117 0%, #1e2130 50%, #2c3348 100%);
-        background-size: 200% 200%;
-        animation: gradientAnimation 15s ease infinite;
-    }
-    
-    @keyframes gradientAnimation {
-        0% {background-position: 0% 50%;}
-        50% {background-position: 100% 50%;}
-        100% {background-position: 0% 50%;}
-    }
-
-    .stSelectbox label, .stHeader { color: #FFD700 !important; font-size: 22px !important; font-weight: bold !important; }
-    
-    .status-card {
-        background-color: rgba(30, 33, 48, 0.8);
-        padding: 25px;
-        border-radius: 15px;
-        border-left: 5px solid #FF4B4B;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-    .instruction-box {
-        background-color: rgba(38, 39, 48, 0.9);
-        padding: 18px;
-        border-radius: 10px;
-        border: 1px solid #5a5a5a;
-        margin-top: 12px;
-        color: #f0f0f0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    
-    .stButton>button {
-        background-color: #FF4B4B;
-        color: white;
-        font-size: 18px;
-        padding: 10px 24px;
-        border-radius: 10px;
-        border: none;
-        width: 100%;
-        box-shadow: 0 4px 0 #bf3939;
-        transition: all 0.3s ease;
-    }
-    .stButton>button:hover {
-        background-color: #ff6b6b;
-        box-shadow: 0 6px 0 #bf3939;
-        transform: translateY(-2px);
-    }
-    
-    p, li { color: #e0e0e0; font-size: 17px; }
-    </style>
-    """, unsafe_allow_state_context=True)
-
-st.title("⛺ منصة الدرع الحراري الذكية")
-st.subheader("نظام حماية المجتمعات وسكان الخيام من موجات الحر")
-
-st.markdown("---")
-
-st.write("### 📍 حدد موقعك للحصول على تعليمات مخصصة:")
-location = st.selectbox(
-    "اختر المنطقة أو نوع السكن:",
-    ["اختر من القائمة...", "مخيم نازحين (خيمة قماشية)", "مخيم لاجئين (غرف زينكو/معدن)", "منطقة ريفية (بيوت طينية/قديمة)", "منطقة حضرية مهمشة"]
+st.set_page_config(
+    page_title="منصة الدرع الحراري",
+    page_icon="⛺",
+    layout="centered"
 )
 
-data = {
-    "مخيم نازحين (خيمة قماشية)": {
-        "temp": 42.5,
-        "risk": "مرتفع جداً (خطر ضربة شمس)",
-        "tips": [
-            "🔴 إخلاء فوري: ابتعد عن ملامسة جدران الخيمة الساخنة.",
-            "💧 ترطيب مكثف: بلل أغطية الخيمة بالماء لخفض الحرارة داخلياً.",
-            "🧴 وقاية شخصية: استخدام مناشف مبللة على الرأس والرقبة باستمرار."
-        ]
-    },
-    "مخيم لاجئين (غرف زينكو/معدن)": {
-        "temp": 44.0,
-        "risk": "حرج (تأثير الصوبات المعدنية)",
-        "tips": [
-            "🧱 العزل الحراري: ضع كرتون أو قماش سميك تحت سقف الزينكو مباشرة.",
-            "🌬️ التهوية المتصالبة: افتح النوافذ المتقابلة لخلق تيار هوائي.",
-            "🥤 السوائل: شرب لتر ماء كل ساعتين على الأقل حتى بدون عطش."
-        ]
-    },
-    "منطقة ريفية (بيوت طينية/قديمة)": {
-        "temp": 39.5,
-        "risk": "متوسط (احتباس حراري)",
-        "tips": [
-            "🐑 حماية الماشية: تأكد من وجود ظل كافٍ ومياه باردة للحيوانات.",
-            "🪟 الإغلاق الذكي: أغلق النوافذ تماماً في ساعات الذروة (12-4 ظهراً).",
-            "🥗 التغذية: تجنب الوجبات الدسمة التي تزيد حرارة الجسم."
-        ]
-    },
-    "منطقة حضرية مهمشة": {
-        "temp": 41.0,
-        "risk": "مرتفع (تأثير الجزر الحرارية)",
-        "tips": [
-            "🌳 البحث عن الظل: التوجه لأقرب منطقة خضراء أو عامة مظللة.",
-            "🚫 الأجهزة: إطفاء كافة الأجهزة الكهربائية غير الضرورية لتقليل الحرارة.",
-            "📞 الطوارئ: تفعيل خط الاتصال المباشر مع فرق الدفاع المدني."
-        ]
-    }
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(-45deg, #0e1117 0%, #1e2130 50%, #2c3348 100%);
+    background-size: 200% 200%;
+    animation: gradientAnimation 15s ease infinite;
 }
 
-if location != "اختر من القائمة...":
-    loc_data = data[location]
-    
-    st.markdown(f"""
-    <div class="status-card">
-        <h2 style='color:#FFD700;'>تحليل حالة الموقع: {location}</h2>
-        <p style='font-size:26px;'>درجة الحرارة المتوقعة: <b>{loc_data['temp']}°C</b></p>
-        <p style='font-size:22px;'>مستوى الخطر: <span style='color:#FFA500;'>{loc_data['risk']}</span></p>
-    </div>
-    """, unsafe_allow_html=True)
+@keyframes gradientAnimation {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
 
-    st.write("### 📋 بروتوكول الطوارئ المخصص لك:")
-    for tip in loc_data['tips']:
-        st.markdown(f"<div class='instruction-box'>{tip}</div>", unsafe_allow_html=True)
-    
-    if st.button("تأكيد استلام التعليمات وتفعيل نظام الإنذار 🔔"):
-        st.success(f"تم تفعيل بروتوكول الطوارئ لمنطقة {location}. ابقَ آمناً!")
+h1, h2, h3 {
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
+div.stButton > button {
+    background: linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+    transition: all 0.3s ease;
+}
+
+div.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 75, 43, 0.6);
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.title("⛺ منصة الدرع الحراري")
+st.markdown("### نظام ذكاء المناخ والتنبؤ بموجات الحر والتخفيض السعر لحماية المجتمعات الضعيفة وسكان الخيام.")
+st.markdown("---")
+
+st.sidebar.header("إعدادات النظام وتحليل المناخ")
+api_key = st.sidebar.text_input("مفتاح API", type="password")
+
+environment_type = st.sidebar.selectbox(
+    "نوع البيئة",
+    ["خيمة قماشية عادية", "خيمة معزولة", "مأوى مؤقت غير عازل", "منزل متنقل (كرافان)"]
+)
+
+locations_dict = {
+    "غزة - الشجاعية": {"lat": 31.527, "lon": 34.482, "temp_offset": 3.5},
+    "غزة - الرمال": {"lat": 31.519, "lon": 34.448, "temp_offset": 2.5},
+    "خان يونس - الأطراف": {"lat": 31.346, "lon": 34.306, "temp_offset": 4.0},
+    "دير البلح - المخيمات": {"lat": 31.417, "lon": 34.350, "temp_offset": 3.0},
+    "رفح - المواصي": {"lat": 31.019, "lon": 34.253, "temp_offset": 4.5},
+    "إدخال إحداثيات مخصصة يدويًا": {"lat": 0.0, "lon": 0.0, "temp_offset": 3.0}
+}
+
+selected_location = st.sidebar.selectbox("حدد مكانك أو المخيم", list(locations_dict.keys()))
+
+if selected_location == "إدخال إحداثيات مخصصة يدويًا":
+    lat = st.sidebar.number_input("خط العرض (Latitude)", value=31.5, format="%.4f")
+    lon = st.sidebar.number_input("خط الطول (Longitude)", value=34.4, format="%.4f")
 else:
-    st.info("الرجاء اختيار موقعك من القائمة أعلاه لعرض لوحة التحكم والتعليمات الخاصة بك.")
+    lat = locations_dict[selected_location]["lat"]
+    lon = locations_dict[selected_location]["lon"]
+
+st.sidebar.markdown("---")
+st.sidebar.info("💡 النظام مصمم خصيصاً لمساعدة الأهالي والفرق الإنسانية في رصد خطورة الحرارة الشديدة داخل الخيام.")
+
+col1, col2 = st.columns([2, 1])
+
+with col1:
+    st.subheader("📊 لوحة المؤشرات البيئية الحالية")
+    
+    base_temp = 36.5
+    offset = locations_dict[selected_location]["temp_offset"] if selected_location != "إدخال إحداثيات مخصصة يدويًا" else 3.5
+    
+    if environment_type == "خيمة قماشية عادية":
+        tent_temp = base_temp + offset + 6.0
+    elif environment_type == "مأوى مؤقت غير عازل":
+        tent_temp = base_temp + offset + 7.5
+    elif environment_type == "خيمة معزولة":
+        tent_temp = base_temp + offset + 2.5
+    else:
+        tent_temp = base_temp + offset + 4.0
+
+    st.metric(label="درجة الحرارة المتوقعة داخل المأوى / الخيمة", value=f"{tent_temp:.1f} °C", delta="+6.5 °C عن الخارج")
+    st.metric(label="درجة الحرارة الخارجية التقريبية", value=f"{base_temp} °C")
+
+with col2:
+    st.subheader("⚠️ تقييم الخطورة")
+    if tent_temp > 42:
+        st.error("🚨 خطر قصوى: موجة حر قاتلة! يرجى الإخلاء المؤقت أو تبريد الخيمة فوراً.")
+    elif tent_temp > 39:
+        st.warning("⚠️ خطر مرتفع: احذر من ضربات الشمس والإجهاد الحراري.")
+    else:
+        st.info("✅ الوضع مستقر نسبياً مع ضرورة الإكثار من شرب السوائل.")
 
 st.markdown("---")
-st.caption("تم تطوير هذه المنصة لحماية الأرواح في الهاكاثون - الدرع الحراري 2026")
+st.subheader("🛡️ توصيات الإسعاف والتخفيف الفوري للحرارة")
+st.markdown("""
+* **التهوية النشطة:** ارفع أطراف القماش السفلي للخيمة قدر الإمكان للسماح بمرور الهواء وتخفيض التكدس الحراري.
+* **التبريد بالماء:** رش أسطح الخيام الخارجية بالماء كل بضع ساعات للمساعدة في التبريد التبخيري.
+* **الفئات الهشة:** إعطاء الأولوية القصوى للأطفال وكبار السن والأشخاص ذوي الأمراض المزمنة بنقلهم للظلال وأماكن التبريد الجماعية.
+""")
 
-          
