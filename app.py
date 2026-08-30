@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+# الإحداثيات المعتمدة لمشروعك في غزة
+lat = 31.427537
+lon = 34.475026
 
 st.set_page_config(
     page_title="منصة الدرع الحراري",
