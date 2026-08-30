@@ -1,118 +1,135 @@
 import streamlit as st
-from datetime import datetime
+import pandas as pd
 
-st.set_page_config(
-    page_title="Thermal Shield Platform",
-    page_icon="⛺",
-    layout="centered"
-)
+st.set_page_config(page_title="منصة الدرع الحراري", page_icon="⛺", layout="centered")
 
-st.title("⛺ Thermal Shield Platform")
-st.markdown("### Climate Intelligence & Heatwave Prediction System")
-st.write("An integrated smart platform for sensing climate heat, analyzing annual changes, and providing an offline local emergency assistant to protect vulnerable communities and tent residents.")
+st.markdown("""
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #0e1117 0%, #1e2130 50%, #2c3348 100%);
+        background-size: 200% 200%;
+        animation: gradientAnimation 15s ease infinite;
+    }
+    
+    @keyframes gradientAnimation {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
+    .stSelectbox label, .stHeader { color: #FFD700 !important; font-size: 22px !important; font-weight: bold !important; }
+    
+    .status-card {
+        background-color: rgba(30, 33, 48, 0.8);
+        padding: 25px;
+        border-radius: 15px;
+        border-left: 5px solid #FF4B4B;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .instruction-box {
+        background-color: rgba(38, 39, 48, 0.9);
+        padding: 18px;
+        border-radius: 10px;
+        border: 1px solid #5a5a5a;
+        margin-top: 12px;
+        color: #f0f0f0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stButton>button {
+        background-color: #FF4B4B;
+        color: white;
+        font-size: 18px;
+        padding: 10px 24px;
+        border-radius: 10px;
+        border: none;
+        width: 100%;
+        box-shadow: 0 4px 0 #bf3939;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #ff6b6b;
+        box-shadow: 0 6px 0 #bf3939;
+        transform: translateY(-2px);
+    }
+    
+    p, li { color: #e0e0e0; font-size: 17px; }
+    </style>
+    """, unsafe_allow_state_context=True)
+
+st.title("⛺ منصة الدرع الحراري الذكية")
+st.subheader("نظام حماية المجتمعات وسكان الخيام من موجات الحر")
+
 st.markdown("---")
 
-st.sidebar.header("⚙️ System Settings & Climate Analysis")
-api_key = st.sidebar.text_input("API Key", type="password", placeholder="Enter API Key here...")
-
-environment_type = st.sidebar.selectbox(
-    "📍 Select Your Environment Type:",
-    [
-        "Marginalized Area / Displaced Camp (Tent / Camp)",
-        "Open Desert Area (Desert)",
-        "Urban / City Area (Urban)",
-        "Closed Space or Factory (Closed / Factory)",
-        "Crowded Space Lacking Ventilation (Crowded Space)"
-    ]
+st.write("### 📍 حدد موقعك للحصول على تعليمات مخصصة:")
+location = st.selectbox(
+    "اختر المنطقة أو نوع السكن:",
+    ["اختر من القائمة...", "مخيم نازحين (خيمة قماشية)", "مخيم لاجئين (غرف زينكو/معدن)", "منطقة ريفية (بيوت طينية/قديمة)", "منطقة حضرية مهمشة"]
 )
 
-climate_trend = st.sidebar.selectbox(
-    "📈 Compare This Summer (2026) to Last Year (2025):",
-    [
-        "Noticeable and dangerous temperature increase compared to 2025",
-        "Slight increase in heatwave intensity",
-        "Conditions are approximately similar",
-        "Slight decrease"
-    ]
-)
+data = {
+    "مخيم نازحين (خيمة قماشية)": {
+        "temp": 42.5,
+        "risk": "مرتفع جداً (خطر ضربة شمس)",
+        "tips": [
+            "🔴 إخلاء فوري: ابتعد عن ملامسة جدران الخيمة الساخنة.",
+            "💧 ترطيب مكثف: بلل أغطية الخيمة بالماء لخفض الحرارة داخلياً.",
+            "🧴 وقاية شخصية: استخدام مناشف مبللة على الرأس والرقبة باستمرار."
+        ]
+    },
+    "مخيم لاجئين (غرف زينكو/معدن)": {
+        "temp": 44.0,
+        "risk": "حرج (تأثير الصوبات المعدنية)",
+        "tips": [
+            "🧱 العزل الحراري: ضع كرتون أو قماش سميك تحت سقف الزينكو مباشرة.",
+            "🌬️ التهوية المتصالبة: افتح النوافذ المتقابلة لخلق تيار هوائي.",
+            "🥤 السوائل: شرب لتر ماء كل ساعتين على الأقل حتى بدون عطش."
+        ]
+    },
+    "منطقة ريفية (بيوت طينية/قديمة)": {
+        "temp": 39.5,
+        "risk": "متوسط (احتباس حراري)",
+        "tips": [
+            "🐑 حماية الماشية: تأكد من وجود ظل كافٍ ومياه باردة للحيوانات.",
+            "🪟 الإغلاق الذكي: أغلق النوافذ تماماً في ساعات الذروة (12-4 ظهراً).",
+            "🥗 التغذية: تجنب الوجبات الدسمة التي تزيد حرارة الجسم."
+        ]
+    },
+    "منطقة حضرية مهمشة": {
+        "temp": 41.0,
+        "risk": "مرتفع (تأثير الجزر الحرارية)",
+        "tips": [
+            "🌳 البحث عن الظل: التوجه لأقرب منطقة خضراء أو عامة مظللة.",
+            "🚫 الأجهزة: إطفاء كافة الأجهزة الكهربائية غير الضرورية لتقليل الحرارة.",
+            "📞 الطوارئ: تفعيل خط الاتصال المباشر مع فرق الدفاع المدني."
+        ]
+    }
+}
 
-offline_mode = st.sidebar.checkbox("📡 Enable Offline Emergency Mode (Offline AI Mode)", value=False, help="Use this mode when internet and communication networks are completely down.")
-
-lat = st.sidebar.number_input("Latitude", value=31.5, format="%.4f")
-lon = st.sidebar.number_input("Longitude", value=34.4, format="%.4f")
-
-st.sidebar.markdown("---")
-st.sidebar.info("💡 The system analyzes annual changes to raise disaster readiness and early response levels.")
-
-st.subheader("📊 Live Climate Sensing & Analysis Dashboard")
-st.write(f"Selected Location: **{environment_type}** | Annual Trend Index: **{climate_trend}**")
-st.write("Click the button below to diagnose current temperature and analyze climate impact:")
-
-if st.button("Diagnose Status & Analyze Annual Trend 🔍", type="primary"):
-    current_temp = 41.5  
+if location != "اختر من القائمة...":
+    loc_data = data[location]
     
-    st.metric(label="Current Local Climate Heat Index", value=f"{current_temp} °C")
-    
-    if "Noticeable" in climate_trend:
-        st.warning("⚠️ **Proactive Climate Change Analysis:** A notable aggravation in heatwaves compared to last year (2025), requiring immediate emergency plan activation.")
+    st.markdown(f"""
+    <div class="status-card">
+        <h2 style='color:#FFD700;'>تحليل حالة الموقع: {location}</h2>
+        <p style='font-size:26px;'>درجة الحرارة المتوقعة: <b>{loc_data['temp']}°C</b></p>
+        <p style='font-size:22px;'>مستوى الخطر: <span style='color:#FFA500;'>{loc_data['risk']}</span></p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    if offline_mode:
-        st.info("📡 **Running Offline Local Assistant:** Emergency protocols are executed locally without requiring network connectivity.")
+    st.write("### 📋 بروتوكول الطوارئ المخصص لك:")
+    for tip in loc_data['tips']:
+        st.markdown(f"<div class='instruction-box'>{tip}</div>", unsafe_allow_html=True)
     
-    if current_temp >= 40:
-        st.error(f"🚨 **Severe Thermal Hazard in ({environment_type})!** Temperature has exceeded critical thresholds.")
-        
-        if "Camp" in environment_type:
-            st.markdown("""
-            **🏕️ Comprehensive Emergency Protocol for Camps & Displacement Sites:**
-            * 🛑 **Temporary Evacuation:** Immediately move away from touching metal tent walls or hot reflective surfaces.
-            * 🧱 **Insulation & Shading:** Hang reflective fabrics or wet blankets over the tent roof to break direct solar radiation.
-            * 💧 **Personal Hydration:** Drink cold water gradually and wet the head and neck to lower body temperature.
-            * 🚒 **Civil Defense Alert:** Send an emergency alert signal to relief teams to schedule water tanker spraying and cool the camp perimeter.
-            """)
-        elif "Desert" in environment_type:
-            st.markdown("""
-            **🏜️ Comprehensive Emergency Protocol for Open Desert Areas:**
-            * ⛱️ **Seek Artificial or Natural Shade:** Move to any low-lying terrain or build a temporary shelter using available fabrics.
-            * 💧 **Fluid Conservation & Hydration:** Maintain water supplies and drink regularly to avoid sudden dehydration.
-            * 🩺 **Field First Aid:** Monitor heatstroke symptoms (dizziness, nausea) and request medical support once communication is available.
-            """)
-        elif "Closed" in environment_type:
-            st.markdown("""
-            **🏭 Comprehensive Emergency Protocol for Factories & Closed Spaces:**
-            * 💨 **Forced Ventilation:** Turn on exhaust fans and open all available vents and chimneys manually or automatically.
-            * 🔥 **Thermal Load Shutdown:** Turn off non-essential machinery and equipment generating extra indoor heat.
-            * 🧊 **Rapid Cooling:** Transfer affected workers to main air-conditioned or ventilated areas and provide hydrating fluids.
-            """)
-        elif "Crowded" in environment_type:
-            st.markdown("""
-            **👥 Comprehensive Emergency Protocol for Crowded Spaces:**
-            * 🚪 **Decongestion & Density Distribution:** Move individuals to wider spaces and relieve human pressure in enclosed rooms.
-            * 🌬️ **Activate Air Currents:** Ensure airflow corridors function and distribute cold water to occupants to prevent fainting.
-            """)
-        else:
-            st.markdown("""
-            **🏙️ Comprehensive Emergency Protocol for Urban Areas:**
-            * 🏢 **Head to Air-Conditioned Shelters:** Immediately enter the nearest public concrete building or air-conditioned community center.
-            * 🚶‍♂️ **Avoid Outdoor Exertion:** Stop any physical activity under direct sunlight until the heatwave breaks.
-            """)
-            
-    elif current_temp >= 35:
-        st.warning(f"⚠️ **High Heat Warning in ({environment_type}):** Please exercise caution, reduce direct exposure, and drink plenty of cold fluids.")
-    else:
-        st.success("✅ **Situation Stable:** Current temperatures are within safe ranges.")
-        
-    st.markdown("---")
-    st.subheader("📝 System Audit & Historical Climate Logs")
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    mode_status = "Offline Local AI" if offline_mode else "Cloud API Connected"
-    log_text = f"[{timestamp}] Mode: {mode_status} | Env: {environment_type} | Trend: {climate_trend} | Temp: {current_temp}°C | Multi-Guidance Protocol Active.\n"
-    
-    st.text_area("Technical Operation Log:", value=log_text, height=100)
-    
+    if st.button("تأكيد استلام التعليمات وتفعيل نظام الإنذار 🔔"):
+        st.success(f"تم تفعيل بروتوكول الطوارئ لمنطقة {location}. ابقَ آمناً!")
+
 else:
-    st.info("👈 Set your settings and annual trend comparison from the sidebar, then click the button above.")
+    st.info("الرجاء اختيار موقعك من القائمة أعلاه لعرض لوحة التحكم والتعليمات الخاصة بك.")
 
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: gray;'>Thermal Shield Platform | Comprehensive Multi-Guidance Safety Platform ⛺</p>", unsafe_allow_html=True)
+st.caption("تم تطوير هذه المنصة لحماية الأرواح في الهاكاثون - الدرع الحراري 2026")
+
           
