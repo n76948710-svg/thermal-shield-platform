@@ -801,36 +801,18 @@ with tab1:
             "يتم استخدام قيم احتياطية للعرض."
         )
 
-    st.markdown(
+        st.markdown(
         f"""
         <div class="risk-card {risk['css']}">
-
-            <div style="font-size:1.4rem;">
-                مستوى الخطر الحالي
-            </div>
-
-            <div class="score">
-                {risk['score']}/100
-            </div>
-
-            <div style="font-size:2rem;font-weight:800;">
-                {risk['level']}
-            </div>
-
-            <p style="margin-top:15px;">
-                {risk['reason']}
-            </p>
-
-            <p style="
-                color:#fff !important;
-                font-size:1.15rem;
-                font-weight:700;
-            ">
+            <div style="font-size:1.4rem;">مستوى الخطر الحالي</div>
+            <div class="score">{risk['score']}/100</div>
+            <div style="font-size:2rem;font-weight:800;">{risk['level']}</div>
+            <p style="margin-top:15px;">{risk['reason']}</p>
+            <p style="color:#fff !important; font-size:1.15rem; font-weight:700;">
                 الإجراء المقترح: {risk['action']}
             </p>
-
-               </div>
-        """, 
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
