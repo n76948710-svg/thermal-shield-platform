@@ -928,30 +928,24 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-    with a3:
-
+        with a3:
         st.markdown("""
         <div class="priority-card">
-
         <h3>3️⃣ الاستعداد والاستجابة</h3>
-
         <ul>
         <li>توفير مياه وسوائل مناسبة</li>
         <li>رفع مستوى المراقبة</li>
         <li>طلب المساعدة الطبية عند الحاجة</li>
         </ul>
-
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown(
         """
         <div class="warning-box">
-
         ⚠️ <b>تنبيه:</b>
         المؤشر الحراري المستخدم هنا تقديري وليس قياس WBGT مباشر.
         القرارات الطبية يجب أن تعتمد على التقييم الطبي والقياسات الميدانية المناسبة.
-
         </div>
         """,
         unsafe_allow_html=True
@@ -983,6 +977,9 @@ with tab1:
         '<span class="badge">Demo / Simulated Data</span>',
         unsafe_allow_html=True
     )
+
+
+    
 
 # ============================================================
 # TAB 2
