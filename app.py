@@ -829,10 +829,11 @@ with tab1:
                 الإجراء المقترح: {risk['action']}
             </p>
 
-        </div>
-        """,
+               </div>
+        """, 
         unsafe_allow_html=True
     )
+
 
     c1, c2, c3, c4 = st.columns(4)
 
